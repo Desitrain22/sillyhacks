@@ -4,7 +4,7 @@ import { StyleSheet, Text, View } from 'react-native';
 export default function App() {
   return (
     <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
+      <Text>wtf are we even going to silly hacks for? to give labor for some bitch to call us cringe? to find out that we are unfunny and bitchless and in my moms basement? miss me with that. i am funny. i am funny.</Text>
       <StatusBar style="auto" />
     </View>
   );
