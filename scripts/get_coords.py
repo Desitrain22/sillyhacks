@@ -1,5 +1,6 @@
 import googlemaps
 import time
+import pandas as pd
 
 def get_taco_bell_coords(api_key: str='AIzaSyBVmTDCW8zxGKB41JwUj8PIxxwRSxfjiPQ', location: tuple=(40.7831, -73.9712), radius: int=24140):
     # Default is NYC, within 15 miles (reached out to Newark and the ass crack of Long Island or so)
@@ -18,7 +19,8 @@ def get_taco_bell_coords(api_key: str='AIzaSyBVmTDCW8zxGKB41JwUj8PIxxwRSxfjiPQ',
         time.sleep(2)  # Wait for the next_page_token to become valid
         results = fetch_places_nearby(gmaps, location, radius, results['next_page_token'])
         all_results.extend(results['results'])
+    
 
-    return [(place['geometry']['location']['lat'], place['geometry']['location']['lng']) for place in all_results]
+    return pd.DataFrame([(place['geometry']['location']['lat'], place['geometry']['location']['lng'], place['vicinity']) for place in all_results],columns=["lat", "long", "address"])
 
-get_taco_bell_coords(location=(39.5, -98.35), radius=100000)
+print(get_taco_bell_coords())
