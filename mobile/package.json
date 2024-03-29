@@ -12,7 +12,9 @@
   "dependencies": {
     "@types/react": "~18.2.45",
     "expo": "~50.0.14",
+    "expo-location": "~16.5.5",
     "expo-status-bar": "~1.11.1",
+    "expo-task-manager": "~11.7.2",
     "react": "18.2.0",
     "react-native": "0.73.6",
     "typescript": "^5.3.0"
