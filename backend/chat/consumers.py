@@ -13,12 +13,51 @@ class EchoConsumer(SyncConsumer):
         })
 
     def websocket_receive(self, event):
-        print(event)
-        print('herebtw')
-        self.send({
-            "type": "websocket.send",
-            "text": event["text"],
-        })
+        message= json.loads(json.loads(event['text'])['message'])
+        print(message)
+        if message["type"] == "dong":
+            if message["status"] == "claimed":
+                pass
+                #Use up a dong
+                #send message to channel, and affected user will get dong notification if name matches
+                print('herebtw')
+                self.send({
+                    "type": "websocket.send",
+                    "text": '{"type" : "dong", "status" : "claimed", "donger" : "' + message["donger"] + '", "dongee" : "' + message["dongee"] + '"}',
+                })
+            else:
+                pass
+                #Enter new dong
+            print(message["donger"])
+            print(message["dongee"])
+            print(message["status"])
+        elif message["type"] == "room":
+            # User entering/leaving room
+            if message["status"] == "joined":
+                pass
+                #Add user to room
+                self.send({
+                    "type": "websocket.send",
+                    "text": '{"type" : "room", "status" : "joined", "user" : "' + message["user"] + '"}',})
+
+            else:
+                pass
+                #Remove user from room
+        elif message["type"] == "tacobell":
+            if message["status"] == "enter":
+                #Make entry that user is in tacobell
+
+                #send notif to users that a dong is available to claim
+                self.send({
+                    "type": "websocket.send",
+                    "text": '{"type" : "tacobell", "status" : "enter", "user" : "' + message["user"] + '"}',})
+
+            else:
+                #make entry that user is no longer in the taco bell
+        elif message["type"] == "query":
+            # User is trying to update leaderboard. Query the "dongs" table and take the standings for the users with matching group ID
+            pass
+        
         
 
 class ChatConsumer(AsyncWebsocketConsumer):
