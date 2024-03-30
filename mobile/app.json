@@ -4,7 +4,6 @@
     "slug": "sillyhacks",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/splash.png",
@@ -35,12 +34,8 @@
           ]
         }
       ],
-      [
-        "expo-font",
-        {
-          "fonts": ["./assets/fonts/StretchPro.otf"]
-        }
-      ]
+      "expo-router"
     ]
-  }
+  },
+  "scheme": "sillyhacks-scheme"
 }
