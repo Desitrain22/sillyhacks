@@ -3,6 +3,23 @@ import json
 
 from channels.generic.websocket import AsyncWebsocketConsumer
 
+from channels.consumer import SyncConsumer
+
+class EchoConsumer(SyncConsumer):
+
+    def websocket_connect(self, event):
+        self.send({
+            "type": "websocket.accept",
+        })
+
+    def websocket_receive(self, event):
+        print(event)
+        print('herebtw')
+        self.send({
+            "type": "websocket.send",
+            "text": event["text"],
+        })
+        
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -21,6 +38,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
     # Receive message from WebSocket
     async def receive(self, text_data):
         text_data_json = json.loads(text_data)
+        print(text_data_json)
         message = text_data_json["message"]
 
         # Send message to room group
