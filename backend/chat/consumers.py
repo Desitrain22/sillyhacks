@@ -1,9 +1,8 @@
 # chat/consumers.py
 import json
-
 from channels.generic.websocket import AsyncWebsocketConsumer
-
 from channels.consumer import SyncConsumer
+import pandas as pd
 
 class EchoConsumer(SyncConsumer):
 
@@ -18,34 +17,33 @@ class EchoConsumer(SyncConsumer):
         if message["type"] == "dong":
             if message["status"] == "claimed":
                 pass
-                #Use up a dong
-                #send message to channel, and affected user will get dong notification if name matches
                 print('herebtw')
+                self.log_dong(message["donger"], message["dongee"], message["room_id"], 1)
                 self.send({
                     "type": "websocket.send",
                     "text": '{"type" : "dong", "status" : "claimed", "donger" : "' + message["donger"] + '", "dongee" : "' + message["dongee"] + '"}',
                 })
             else:
                 pass
-                #Enter new dong
+                self.log_dong(message["donger"], message["dongee"], message["room_id"], 0)
             print(message["donger"])
             print(message["dongee"])
             print(message["status"])
         elif message["type"] == "room":
             # User entering/leaving room
             if message["status"] == "joined":
-                pass
-                #Add user to room
-                self.send({
-                    "type": "websocket.send",
-                    "text": '{"type" : "room", "status" : "joined", "user" : "' + message["user"] + '"}',})
-
+                self.add_user(message["user"], message["room_id"])
+                # self.send({
+                #     "type": "websocket.send",
+                #     "text": '{"type" : "room", "status" : "joined", "user" : "' + message["user"] + '"}',})
             else:
                 pass
                 #Remove user from room
         elif message["type"] == "tacobell":
             if message["status"] == "enter":
+                self.log_taco_entry(message["user"], message["room_id"], pd.Timestamp.now(), "enter")
                 #Make entry that user is in tacobell
+                
 
                 #send notif to users that a dong is available to claim
                 self.send({
@@ -54,10 +52,49 @@ class EchoConsumer(SyncConsumer):
 
             else:
                 #make entry that user is no longer in the taco bell
+                self.log_taco_entry(message["user"], message["room_id"], pd.Timestamp.now(), "exit")
+
         elif message["type"] == "query":
             # User is trying to update leaderboard. Query the "dongs" table and take the standings for the users with matching group ID
-            pass
-        
+            board = self.get_leaderboard(message["room_id"])
+            response = ""
+            for user in board.index:
+                response += '{"user" : "' + user + '", "stat" : "' + board[user] + '"},'
+            self.send({
+                    "type": "websocket.send",
+                    "text": response})
+
+    
+    def add_user(self, username, room_id):
+        df = pd.read_csv("data/users.csv")
+        df.loc[len(df.index)] = [username, room_id]
+        df.to_csv("data/users.csv")
+
+    def get_users(self, room_id):
+        df = pd.read_csv("data/users.csv")
+        return df["room_id" == room_id]
+
+    def get_leaderboard(self, room_id):
+        df = pd.read_csv("data/dongs.csv")
+        df = df["room_id" == room_id]
+        result = df.groupby('donger')['stat'].sum()
+        return result
+    
+    def get_available_dongs(self, room_id):
+        df = pd.read_csv("data/tacobell_entry.csv")
+        df = df["room_id" == room_id]
+        df = df.groupby('username').last()
+        return df[df["status"] == "enter"]
+    
+    def log_taco_entry(self, username, room_id, timestamp, status):
+        df = pd.read_csv("data/tacobell_entry.csv")
+        df.loc[timestamp] = [username, room_id, status]
+        df.to_csv("data/tacobell_entry.csv")
+
+    def log_dong(self, donger, dongee, room_id, status):
+        df = pd.read_csv("data/dongs.csv")
+        df.loc[len(df.index)] = [donger, dongee, room_id, status]
+        df.to_csv("data/dongs.csv", index=False)
         
 
 class ChatConsumer(AsyncWebsocketConsumer):
