@@ -10,13 +10,15 @@ import {
 import { styled } from 'nativewind';
 import { Image as _Image } from 'expo-image';
 import { useFonts } from 'expo-font';
+import { LinearGradient as _LinearGradient } from 'expo-linear-gradient';
+import { colors } from '../../constants';
 
 const View = styled(_View)
 const Text = styled(_Text)
 const Pressable = styled(_Pressable)
-const Image = styled(_Image)
 const ScrollView = styled(_ScrollView)
 const ImageBackground = styled(_ImageBackground)
+const LinearGradient = styled(_LinearGradient)
 
 type ClaimableProps = {
   active?: boolean;
@@ -80,8 +82,19 @@ export default function Page() {
   if (!fontsLoaded) return null;
 
   return <>
-    <Image className="w-full h-20 bg-transparent" contentFit='fill' source={require("../../assets/top_gradient.svg")} />
-    <View className="flex-1 items-start justify-start pt-4 w-full h-full bg-cyan">
+    <LinearGradient colors={[colors.pink, colors.cyan]} className="w-full h-16 bg-transparent" />    
+    <ImageBackground 
+      source={require("../../assets/bg/pizza.png")}
+      imageStyle={{ // TODO: refactor to use NativeWind
+        resizeMode: "contain",
+        height: 300,
+        top: undefined,
+        position: 'absolute',
+        bottom: 0,
+        left: 0
+      }}
+      className="flex-1 items-start justify-start pt-4 w-full h-full bg-cyan"
+    >
       <Text className="ml-8 items-start font-stretch text-lg text-purple">Claimable DDongggs</Text>
       <ScrollView horizontal className="w-full px-8">
         <View className="mt-2 mb-4 flex-row space-x-4">
@@ -89,7 +102,6 @@ export default function Page() {
           <Claimable name="Neal Patel" address="58A Fulton St." />
         </View>
       </ScrollView>
-
 
       <Text className="font-stretch text-lg text-purple ml-8 mb-2">DDongggable</Text>
       <ScrollView className="w-full h-72">
@@ -106,8 +118,7 @@ export default function Page() {
           </View>
         </View>
       </ScrollView>
-
-    </View>
-    <Image className="w-full h-12 bg-transparent mt-auto" contentFit='fill' source={require("../../assets/bottom_gradient.svg")} />
+    </ImageBackground>
+    <LinearGradient colors={[colors.cyan, colors.green]} className="absolute bottom-0 w-full h-16 bg-transparent" />    
   </>;
 }
