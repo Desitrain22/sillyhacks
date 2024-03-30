@@ -35,6 +35,12 @@
           ]
         }
       ],
+      [
+        "expo-font",
+        {
+          "fonts": ["./assets/fonts/StretchPro.otf"]
+        }
+      ]
     ]
   }
 }
