@@ -6,7 +6,7 @@ module.exports = {
   ],
   theme: {
     extend: {
-      colors: {
+      colors: { // TODO: import these colors from constants
         'purple': '#662D91',
         'pink': '#ED4B79',
         'magenta': '#FF00FF',
