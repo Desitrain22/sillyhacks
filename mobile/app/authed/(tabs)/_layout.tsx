@@ -36,7 +36,7 @@ export default function TabLayout() {
                 width: 242.45 / 3,
                 height: 195.93 / 3,
                 marginBottom: -17
-              }} source={focused ? require("../../assets/nav/inventory_active.svg") : require("../../assets/nav/inventory.svg")} />
+              }} source={focused ? require("../../../assets/nav/inventory_active.svg") : require("../../../assets/nav/inventory.svg")} />
             </View>,
           }}
         />
@@ -48,7 +48,7 @@ export default function TabLayout() {
               <Image style={{
                 width: 151.57 / 3,
                 height: 148.24 / 3,
-              }} source={focused ? require("../../assets/nav/home_active.svg") : require("../../assets/nav/home.svg")} />
+              }} source={focused ? require("../../../assets/nav/home_active.svg") : require("../../../assets/nav/home.svg")} />
             </View>,
           }}
         />
@@ -60,14 +60,14 @@ export default function TabLayout() {
               <Image style={{
                 width: 337.46 / 3,
                 height: 152.05 / 3,
-              }} source={focused ? require("../../assets/nav/leaderboard_active.svg") : require("../../assets/nav/leaderboard.svg")} />
+              }} source={focused ? require("../../../assets/nav/leaderboard_active.svg") : require("../../../assets/nav/leaderboard.svg")} />
             </View>,
           }}
         />
       </StyledTabs>
       <View className="w-full bg-green">
       <View className="h-16 w-1/3 mx-auto">
-        <Image className="w-full h-full" contentFit='contain' source={require("../../assets/logo.svg")} />
+        <Image className="w-full h-full" contentFit='contain' source={require("../../../assets/logo.svg")} />
       </View>
       </View>
     </>

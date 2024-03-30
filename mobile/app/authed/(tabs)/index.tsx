@@ -11,7 +11,8 @@ import { styled } from 'nativewind';
 import { Image as _Image } from 'expo-image';
 import { useFonts } from 'expo-font';
 import { LinearGradient as _LinearGradient } from 'expo-linear-gradient';
-import { colors } from '../../constants';
+import { colors } from '../../../constants';
+import Loading from '../../../components/Loading';
 
 const View = styled(_View)
 const Text = styled(_Text)
@@ -75,16 +76,16 @@ const Dongable = ({
 export default function Page() {
 
   const [fontsLoaded] = useFonts({
-    'Stretch Pro': require('../../assets/fonts/Stretch Pro.otf'),
-    'Comic Sans': require('../../assets/fonts/Comic Sans.ttf')
+    'Stretch Pro': require('../../../assets/fonts/Stretch Pro.otf'),
+    'Comic Sans': require('../../../assets/fonts/Comic Sans.ttf')
   });
 
-  if (!fontsLoaded) return null;
+  if (!fontsLoaded) return <Loading />;
 
   return <>
     <LinearGradient colors={[colors.pink, colors.cyan]} className="w-full h-16 bg-transparent" />    
     <ImageBackground 
-      source={require("../../assets/bg/pizza.png")}
+      source={require("../../../assets/bg/pizza.png")}
       imageStyle={{ // TODO: refactor to use NativeWind
         resizeMode: "contain",
         height: 300,

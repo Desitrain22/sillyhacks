@@ -8,7 +8,8 @@ import { styled } from "nativewind";
 import { useFonts } from "expo-font";
 import { LinearGradient as _LinearGradient } from 'expo-linear-gradient';
 import { Image as _Image } from 'expo-image';
-import { colors } from '../../constants';
+import { colors } from '../../../constants';
+import Loading from '../../../components/Loading'
 
 
 const View = styled(_View)
@@ -20,16 +21,16 @@ const LinearGradient = styled(_LinearGradient)
 
 export default function Leaderboard() {
   const [fontsLoaded] = useFonts({
-    'Stretch Pro': require('../../assets/fonts/Stretch Pro.otf'),
-    'Comic Sans': require('../../assets/fonts/Comic Sans.ttf')
+    'Stretch Pro': require('../../../assets/fonts/Stretch Pro.otf'),
+    'Comic Sans': require('../../../assets/fonts/Comic Sans.ttf')
   });
 
-  if (!fontsLoaded) return null;
+  if (!fontsLoaded) return <Loading />;
 
   return <>
     <LinearGradient colors={[colors.pink, colors.cyan]} className="w-full h-16 bg-transparent" />
     <ImageBackground
-      source={require("../../assets/bg/hardshell.png")}
+      source={require("../../../assets/bg/hardshell.png")}
       className="bg-cyan w-full h-full items-center justify-start mt-0 space-y-0"
       imageStyle={{ // TODO: refactor to use NativeWind
         resizeMode: "contain",

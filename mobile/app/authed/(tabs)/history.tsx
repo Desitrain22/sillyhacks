@@ -8,7 +8,8 @@ import { styled } from "nativewind";
 import { useFonts } from "expo-font";
 import { LinearGradient as _LinearGradient } from 'expo-linear-gradient';
 import PieChart from 'react-native-pie-chart'
-import { colors, chartColors } from '../../constants';
+import { colors, chartColors } from '../../../constants';
+import Loading from '../../../components/Loading';
 
 const PIE_CHART_COLORS = Object.values(chartColors);
 
@@ -21,11 +22,11 @@ const LinearGradient = styled(_LinearGradient)
 
 export default function History() {
   const [fontsLoaded] = useFonts({
-    'Stretch Pro': require('../../assets/fonts/Stretch Pro.otf'),
-    'Comic Sans': require('../../assets/fonts/Comic Sans.ttf')
+    'Stretch Pro': require('../../../assets/fonts/Stretch Pro.otf'),
+    'Comic Sans': require('../../../assets/fonts/Comic Sans.ttf')
   });
 
-  if (!fontsLoaded) return null;
+  if (!fontsLoaded) return <Loading />;
 
   const series = [123, 321, 123, 789, 537]
   const seriesColors = series.map((_, i) => PIE_CHART_COLORS[i % PIE_CHART_COLORS.length])
@@ -35,7 +36,7 @@ export default function History() {
     <View className="bg-cyan w-full h-full flex items-center justify-start mt-0">
       <ImageBackground
         className="w-screen"
-        source={require("../../assets/bg/crunchwrap.png")}
+        source={require("../../../assets/bg/crunchwrap.png")}
         imageStyle={{ // TODO: refactor to use NativeWind
           resizeMode: "contain",
           position: 'absolute',
@@ -59,7 +60,7 @@ export default function History() {
         <PieChart widthAndHeight={120} series={series} sliceColor={seriesColors} coverRadius={0.45} />
         <View className="flex-col space-y-2">
           {seriesColors.map((color, i) =>
-            <View className="flex-row items-center">
+            <View key={`${color}-${i}`} className="flex-row items-center">
               <View key={i} className="w-4 h-4 mr-2" style={{ backgroundColor: color }} />
               <Text className="font-stretch text-xs text-purple">Neal Patel</Text>
             </View>)}
