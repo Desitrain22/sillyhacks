@@ -28,7 +28,7 @@ export default function TabLayout() {
         screenOptions={{ headerShown: false }}
       >
         <Tabs.Screen
-          name="inventory"
+          name="history"
           options={{
             title: '',
             tabBarIcon: ({ focused }) => <View className="w-full h-full flex-row items-center justify-center">
