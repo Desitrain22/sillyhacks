@@ -7,12 +7,14 @@ import { StatusBar } from 'expo-status-bar';
 
 const LOCATION_TASK_NAME = 'background-location-task';
 
+var wsSingleton: WebSocket | null = null;
+
 TaskManager.defineTask<{ locations: Location.LocationObject[] }>(LOCATION_TASK_NAME, ({ data, error }) => {
   if (error) {
     // Error occurred - check `error.message` for more details.
     return;
   }
-  if (data) {
+  if (wsSingleton && data) {
     const { locations } = data;
     for (const location in locations) {
       if (location) {
@@ -42,8 +44,7 @@ export default function App() {
       }
     })();
   }, []);
-
-
+  
   return (
     <View style={styles.container}>
       <Text>wtf are we even going to silly hacks for? to give labor for some bitch to call us cringe? to find out that we are unfunny and bitchless and in my moms basement? miss me with that. i am funny. i am funny.</Text>
