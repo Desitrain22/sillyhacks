@@ -21,4 +21,4 @@ def get_taco_bell_coords(api_key: str='AIzaSyBVmTDCW8zxGKB41JwUj8PIxxwRSxfjiPQ',
 
     return pd.DataFrame([(place['geometry']['location']['lat'], place['geometry']['location']['lng'], place['vicinity']) for place in all_results],columns=["lat", "long", "address"])
 
-print(get_taco_bell_coords())
+get_taco_bell_coords().to_csv("taco_bell_coords.csv", index=True)
