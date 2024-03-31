@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse, HttpResponseBadRequest
-from .models import Room, User, Dong, Dongable
+from .models import Room, User, Dong, Dongable, Location
 import random
 import string
 
@@ -82,6 +82,68 @@ def get_dong_history(request):
         return JsonResponse({"dongs": Dong.get_dong_history(None, user)})
     else:
         return HttpResponseBadRequest("Please provide a user_id parameter")
+
+
+def set_dongable(request):
+    if "user_id" in request.GET and "can_dong" in request.GET:
+        user_id = request.GET["user_id"]
+        user = User.objects.get(user_id=user_id)
+        # if the user is already dongable, set can_dong to False
+        dongable = Dongable.objects.get(user=user)
+        dongable.can_dong = True if request.GET["can_dong"] == "1" else False
+        dongable.save()
+        return JsonResponse({"can_dong": dongable.can_dong})
+    else:
+        return HttpResponseBadRequest("Please provide a user_id and can_dong parameter")
+
+
+def dong_by_api(request):
+    if "donger" in request.GET and "dongee" in request.GET:
+        donger = User.objects.get(user_id=request.GET["donger"])
+        dongee = User.objects.get(user_id=request.GET["dongee"])
+        dong_type = 1 if request.GET["dong_type"] == "1" else -1
+        location = Location.objects.get(id=request.GET["location_id"])
+        if (dong_type == -1) and (
+            Dong.get_available_dongs(None, donger, dongee) > 0
+        ):  # If the user is trying to issue a dong, check if they even can.
+            print("dong available, sending dong")
+            dong = Dong(
+                donger=donger, dongee=dongee, dong_type=dong_type, location=location
+            )
+            dong.save()
+            return JsonResponse(
+                {
+                    "donger": donger.user_id,
+                    "dongee": dongee.user_id,
+                    "dong_type": dong_type,
+                    "dong_type": dong.dong_type,
+                    "location": location.address,
+                }
+            )
+        elif (
+            Dongable.objects.filter(user=dongee, can_dong=True).exists()
+            and dong_type == 1
+        ):
+            print("user is dongable, issuing dong credit")
+            dong = Dong(
+                donger=donger,
+                dongee=dongee,
+                dong_type=dong_type,
+                location=location,
+            )
+            dong.save()
+            return JsonResponse(
+                {
+                    "donger": donger.user_id,
+                    "dongee": dongee.user_id,
+                    "dong_type": dong_type,
+                    "dong_type": dong.dong_type,
+                    "location": location.address,
+                }
+            )
+        else:
+            print("dong not available")
+            return HttpResponseBadRequest("Invalid Dong")
 
 
 def generate_code():
