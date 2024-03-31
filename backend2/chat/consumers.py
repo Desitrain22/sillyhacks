@@ -1,68 +1,92 @@
 import json
 
 from asgiref.sync import async_to_sync
-from channels.generic.websocket import WebsocketConsumer
+from channels.generic.websocket import AsyncWebsocketConsumer
+from channels.db import DatabaseSyncToAsync
 from dasite.models import User, Room, Dong, Location, TacoEntrance
-import random
-import string
 
 
-class ChatConsumer(WebsocketConsumer):
-    def connect(self):
+class ChatConsumer(AsyncWebsocketConsumer):
+    async def connect(self):
         self.room_name = self.scope["url_route"]["kwargs"]["room_name"]
         self.room_group_name = f"chat_{self.room_name}"
-        self.display_name = Room.objects.get(room_id=self.room_name).room_name
+        self.display_name = await DatabaseSyncToAsync(self.query_room_name)()
 
         # Join room group
-        async_to_sync(self.channel_layer.group_add)(
-            self.room_group_name, self.channel_name
-        )
+        await self.channel_layer.group_add(self.room_group_name, self.channel_name)
 
-        self.accept()
+        await self.accept()
 
-    def disconnect(self, close_code):
+    async def disconnect(self, close_code):
         # Leave room group
-        async_to_sync(self.channel_layer.group_discard)(
-            self.room_group_name, self.channel_name
+        await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
+        
+    def query_room_name(self):
+        return Room.objects.get(room_id=self.room_name).room_name
+    
+    def query_room(self):
+        return Room.objects.get(room_id=self.room_name)
+    
+    def create_user(self, user_id):
+        room = self.query_room()
+        user = User(user_id=user_id, room_id=room)
+        user.save()
+        return user
+    
+    def get_user(self, user_id):
+        return User.objects.get(
+                user_id=user_id,
+                room_id=Room.objects.get(room_id=self.room_name),
         )
+        
+    def get_location(self, location_id):
+        return Location.objects.get(id=location_id)
+    
+    def log_entrance(self, location_id, user_id, status):
+        location = self.get_location(location_id)
+        user = self.get_user(user_id)
+        room = self.query_room()
+        taco_entrance = TacoEntrance(user=user, room = room, location=location, status=status)
+        taco_entrance.save()
+
+    def issue_dong(self, donger, dongee, dong_type, location_id):
+        donger = self.get_user(donger)
+        dongee = self.get_user(dongee)
+        location = self.get_location(location_id)
+        dong = Dong(
+            donger=donger,
+            dongee=dongee,
+            dong_type=dong_type,
+            location=location,
+        )
+        dong.save()
 
     # Receive message from WebSocket
-    def receive(self, text_data):
+    async def receive(self, text_data):
         text_data_json = json.loads(text_data)
         message = json.loads(text_data_json["message"])
         print(message)
 
         if message["type"] == "user":
-            # user has entered
-            room = Room.objects.get(room_id=self.room_name)
-            user = User(user_id=message["user_id"], room_id=room)
-            user.save()
-            msg = 'response: {"type" : "user_joined", "user_id" : "' + message["user_id"] + '", "room_name" : "' + self.display_name + '"}'
+            user = await DatabaseSyncToAsync(self.create_user)(user_id=message["user_id"])
+            msg = (
+                'response: {"type" : "user_joined", "user_id" : "'
+                + message["user_id"]
+                + '", "room_name" : "'
+                + self.display_name
+                + '"}'
+            )
             print(msg)
-            async_to_sync(self.channel_layer.group_send)(
+            await self.channel_layer.group_send(
                 self.room_group_name,
                 {
                     "type": "chat.message",
                     "message": msg,
                 },
             )
+            
         elif message["type"] == "dong":
-            donger = User.objects.get(
-                user_id=message["donger"],
-                room_id=Room.objects.get(room_id=self.room_name),
-            )
-            dongee = User.objects.get(
-                user_id=message["dongee"],
-                room_id=Room.objects.get(room_id=self.room_name),
-            )
-            location = Location.objects.get(id=message["location_id"])
-            dong = Dong(
-                donger=donger,
-                dongee=dongee,
-                dong_type=message["dong_type"],
-                location=location,
-            )
-            dong.save()
+            dong = await DatabaseSyncToAsync(self.issue_dong)(donger=message["donger"], dongee=message["dongee"], dong_type=message["dong_type"], location_id=message["location_id"])
             if message["dong_type"] == 1:  # send dong to donger
                 response = (
                     '{"type" : "dong_issued", "donger" : "'
@@ -71,34 +95,26 @@ class ChatConsumer(WebsocketConsumer):
                     + message["dongee"]
                     + '",'
                 )
-                async_to_sync(self.channel_layer.group_send)(
+                await self.channel_layer.group_send(
                     self.room_group_name, {"type": "chat.message", "message": response}
                 )
-                # pass
+                
         elif message["type"] == "taco_entrance":
-            user = User.objects.get(
+            taco_entrance = await DatabaseSyncToAsync(self.log_entrance)(
+                location_id=message["location_id"],
                 user_id=message["user_id"],
-                room_id=Room.objects.get(room_id=self.room_name),
+                status=message["status"],
             )
-            location = Location.objects.get(id=message["location_id"])
-            taco_entrance = TacoEntrance(
-                user=user, location=location, status=message["status"]
-            )
-            taco_entrance.save()
             if message["status"] == 0:  # entering a bell
                 response = (
-                    '{"type" : "dong_available", "dongee" : "' + user.user_id + '",'
+                    '{"type" : "dong_available", "dongee" : "' + message["user_id"] + '",'
                 )
-                async_to_sync(self.channel_layer.group_send)(
+                await self.channel_layer.group_send(
                     self.room_group_name, {"type": "chat.message", "message": response}
                 )
-        # Send message to room group
-        #async_to_sync(self.channel_layer.group_send)(
-        #    self.room_group_name, {"type": "chat.message", "message": message}
-        #)
 
     # Receive message from room group
-    def chat_message(self, event):
+    async def chat_message(self, event):
         message = event["message"]
         # Send message to WebSocket
-        self.send(text_data=json.dumps({"message": message}))
+        await self.send(text_data=json.dumps({"message": message}))
