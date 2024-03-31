@@ -37,16 +37,17 @@ class Dong(models.Model):
 
 class TacoEntrance(models.Model):
     location = models.ForeignKey(Location, on_delete=models.CASCADE)
+    room = models.ForeignKey(Room, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     time = models.DateTimeField(auto_now_add=True)
     status = models.IntegerField(default=0)  # 0 for entering, 1 for leaving
 
-    def get_current_dongable(self):
-        # Retrieve the most recent entry for each unique user
-        most_recent_entries = (
-            TacoEntrance.objects.filter(user_id=self.user_id)
-            .order_by("-time")
-            .distinct("user_id")
-        )
+    def get_current_dongable(self, room_id:str):
+        # Retrieve the most recent entry for each user in the room
+        users = User.objects.filter(room_id=room_id)
+        # Retrieve the most recent entry for each user in the room
+        entries = TacoEntrance.objects.filter(user__in = users)
+        #filter entries for the most recent entry for each unique user
+        most_recent_entries = entries.order_by('user', '-time').distinct('user')
         most_recent_entries = most_recent_entries.filter(status=0)
         return most_recent_entries
