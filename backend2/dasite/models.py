@@ -25,7 +25,7 @@ class Dong(models.Model):
     dong_type = models.IntegerField(default=1)  # 1 for earned dong, -1 for used dong
     location = models.ForeignKey(Location, on_delete=models.CASCADE)
 
-    def get_available_dongs(self, donger: str, dongee: str):
+    def get_available_dongs(self, donger: User, dongee: User):
         donger = User.objects.get(user_id=donger)
         dongee = User.objects.get(user_id=dongee)
         dongs = Dong.objects.filter(donger=donger, dongee=dongee)
@@ -33,7 +33,19 @@ class Dong(models.Model):
             "total_dong_type"
         ]
         return sum_dong_type
+    
+    def get_dong_count_for_user(self, donger: User):
+        donger = User.objects.get(user_id=donger)
+        dongs = Dong.objects.filter(donger=donger, dong_type=1)
+        return dongs.count()
+    
 
+class Dongable(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, primary_key=True)
+    can_dong = models.BooleanField(default=True)
+    
+    def get_dongable(self):
+        return Dongable.objects.filter(can_dong=True).values('user')
 
 class TacoEntrance(models.Model):
     location = models.ForeignKey(Location, on_delete=models.CASCADE)
@@ -41,13 +53,3 @@ class TacoEntrance(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     time = models.DateTimeField(auto_now_add=True)
     status = models.IntegerField(default=0)  # 0 for entering, 1 for leaving
-
-    def get_current_dongable(self, room_id:str):
-        # Retrieve the most recent entry for each user in the room
-        users = User.objects.filter(room_id=room_id)
-        # Retrieve the most recent entry for each user in the room
-        entries = TacoEntrance.objects.filter(user__in = users)
-        #filter entries for the most recent entry for each unique user
-        most_recent_entries = entries.order_by('user', '-time').distinct('user')
-        most_recent_entries = most_recent_entries.filter(status=0)
-        return most_recent_entries
