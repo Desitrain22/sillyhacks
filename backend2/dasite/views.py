@@ -155,9 +155,14 @@ def check_if_at_bell(request):
             abs(location.latitude - lat) < 0.0002
             and abs(location.longitude - long) < 0.0002
         ):  # within 75 feet of the center of tacobell
-            return JsonResponse({"at_bell": True, "location_id": str(location.id), "location_address" : str(location.address)})
+            return JsonResponse(
+                {
+                    "at_bell": True,
+                    "location_id": str(location.id),
+                    "location_address": str(location.address),
+                }
+            )
     return JsonResponse({"at_bell": False})
-
 
 def generate_code():
     code = "".join(random.choices(string.ascii_uppercase, k=6))
