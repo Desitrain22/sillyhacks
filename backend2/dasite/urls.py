@@ -16,4 +16,5 @@ urlpatterns = [
     path("get_dong_history", views.get_dong_history, name="get_dong_history"),
     path("set_dongable", views.set_dongable, name="set_dongable"),
     path("dong_by_api", views.dong_by_api, name="dong_by_api"),
+    path("check_if_at_bell", views.check_if_at_bell, name="check_if_at_bell"),
 ]
