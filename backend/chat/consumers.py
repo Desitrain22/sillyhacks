@@ -18,6 +18,8 @@ class EchoConsumer(SyncConsumer):
             if message["status"] == "claimed":
                 pass
                 print('herebtw')
+                #d = Dong(donger=message["donger"], dongee=message["dongee"], room_id=message["room_id"], status=1)
+                #d.save()
                 self.log_dong(message["donger"], message["dongee"], message["room_id"], 1)
                 self.send({
                     "type": "websocket.send",

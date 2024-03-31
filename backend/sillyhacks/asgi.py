@@ -17,7 +17,7 @@ from chat.routing import websocket_urlpatterns
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'sillyhacks.settings')
 
-django_asgi_app = get_asgi_application()
+#django_asgi_app = get_asgi_application()
 
 application = ProtocolTypeRouter(
     {
