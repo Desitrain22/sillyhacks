@@ -26,8 +26,8 @@ class Dong(models.Model):
     location = models.ForeignKey(Location, on_delete=models.CASCADE)
 
     def get_available_dongs(self, donger: User, dongee: User):
-        donger = User.objects.get(user_id=donger)
-        dongee = User.objects.get(user_id=dongee)
+        #donger = User.objects.get(user_id=donger)
+        #dongee = User.objects.get(user_id=dongee)
         dongs = Dong.objects.filter(donger=donger, dongee=dongee)
         sum_dong_type = dongs.aggregate(total_dong_type=models.Sum("dong_type"))[
             "total_dong_type"
@@ -35,10 +35,30 @@ class Dong(models.Model):
         return sum_dong_type
     
     def get_dong_count_for_user(self, donger: User):
-        donger = User.objects.get(user_id=donger)
+        #donger = User.objects.get(user_id=donger)
         dongs = Dong.objects.filter(donger=donger, dong_type=1)
         return dongs.count()
     
+    def get_total_unloadable_dongs(self, donger: User):
+        dongs = Dong.objects.filter(donger=donger)
+        sum_dong_type = dongs.aggregate(total_dong_type=models.Sum("dong_type"))[
+            "total_dong_type"
+        ]
+        return sum_dong_type
+    
+    def get_dong_history(self, donger: User):
+        # get a history of claimed dongs
+        dongs = Dong.objects.filter(donger=donger, dong_type=1)
+        dong_list = []
+        for dong in dongs:
+            dong_list.append({
+                "donger": dong.donger.user_id,
+                "dongee": dong.dongee.user_id,
+                "dong_time": dong.dong_time,
+                "dong_type": dong.dong_type,
+                "location": dong.location.address
+            })
+        return dong_list
 
 class Dongable(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, primary_key=True)

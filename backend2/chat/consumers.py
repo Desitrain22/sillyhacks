@@ -54,14 +54,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
         d = Dongable(user=user, can_dong=status)
         d.save()
 
-    #def check_dongable(self, user_id):
-    #    return Dongable.objects.filter(user__user_id=user_id, can_dong=True).exists()
-
     def issue_dong(self, donger, dongee, dong_type, location_id):
         donger = self.get_user(donger)
         dongee = self.get_user(dongee)
         location = self.get_location(location_id)
-        if (dong_type == -1) and (Dong.get_available_dongs(None, donger.user_id, dongee.user_id) > 0): #If the user is trying to issue a dong, check if they even can.
+        if (dong_type == -1) and (Dong.get_available_dongs(None, donger, dongee) > 0): #If the user is trying to issue a dong, check if they even can.
             print("dong available, sending dong")
             dong = Dong(
                 donger=donger, dongee=dongee, dong_type=dong_type, location=location
