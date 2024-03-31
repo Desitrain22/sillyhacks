@@ -26,8 +26,6 @@ class Dong(models.Model):
     location = models.ForeignKey(Location, on_delete=models.CASCADE)
 
     def get_available_dongs(self, donger: User, dongee: User):
-        #donger = User.objects.get(user_id=donger)
-        #dongee = User.objects.get(user_id=dongee)
         dongs = Dong.objects.filter(donger=donger, dongee=dongee)
         sum_dong_type = dongs.aggregate(total_dong_type=models.Sum("dong_type"))[
             "total_dong_type"
@@ -35,7 +33,6 @@ class Dong(models.Model):
         return sum_dong_type
     
     def get_dong_count_for_user(self, donger: User):
-        #donger = User.objects.get(user_id=donger)
         dongs = Dong.objects.filter(donger=donger, dong_type=1)
         return dongs.count()
     
