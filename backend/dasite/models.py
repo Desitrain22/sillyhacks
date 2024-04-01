@@ -80,7 +80,7 @@ class TacoEntryEvent(models.Model):
     room = models.ForeignKey(Room, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     time = models.DateTimeField(auto_now_add=True)
-    status = models.IntegerField(default=0)  # 0 for entering, 1 for leaving
+    status = models.IntegerField(default=1)  # 1 for entering, 0 for leaving
 
     def get_recent_events(self, room: Room):
         # Get the most recent entries
