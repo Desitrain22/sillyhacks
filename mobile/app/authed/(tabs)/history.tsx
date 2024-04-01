@@ -97,6 +97,6 @@ export default function History() {
         </ScrollView>
       </View>
     </View>
-    <LinearGradient colors={[colors.cyan, colors.green]} className="absolute bottom-0 w-full h-16 bg-transparent" />
+    <LinearGradient colors={['rgba(255,255,255,0)', colors.green]} className="absolute bottom-0 w-full h-16 bg-transparent" />
   </>
 }

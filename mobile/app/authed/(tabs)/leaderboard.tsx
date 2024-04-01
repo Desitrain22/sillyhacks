@@ -85,6 +85,6 @@ export default function Leaderboard() {
         <Text className="font-stretch text-4xl text-purple">{Array.from(roomCode).join(`\u200B`)}</Text>
       </View>
     </ImageBackground>
-    <LinearGradient colors={[colors.cyan, colors.green]} className="absolute bottom-0 w-full h-16 bg-transparent" />
+    <LinearGradient colors={['rgba(255,255,255,0)', colors.green]} className="absolute bottom-0 w-full h-16 bg-transparent" />
   </>
 }
