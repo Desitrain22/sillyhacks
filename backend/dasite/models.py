@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Count
 
 
 class Room(models.Model):
@@ -36,6 +37,20 @@ class Dong(models.Model):
         dongs = Dong.objects.filter(donger=donger, dong_type=1)
         return dongs.count()
 
+    def get_dong_counts_for_room(self, room: Room):
+        dongs_per_user = (
+            Dong.objects.filter(donger__room=room, dong_type=1)
+            .values("donger__user_id")
+            .annotate(entries_count=Count("donger"))
+            .order_by("-entries_count")
+        )
+
+        result = []
+        for user_entry in dongs_per_user:
+            result.append({user_entry["donger__user_id"]: user_entry["entries_count"]})
+            print(f"{user_entry['donger__user_id']}: {user_entry['entries_count']}")
+        return result
+
     def get_total_unloadable_dongs(self, donger: User):
         dongs = Dong.objects.filter(donger=donger)
         sum_dong_type = dongs.aggregate(total_dong_type=models.Sum("dong_type"))[
@@ -59,6 +74,7 @@ class Dong(models.Model):
             )
         return dong_list
 
+
 class TacoEntryEvent(models.Model):
     location = models.ForeignKey(Location, on_delete=models.CASCADE)
     room = models.ForeignKey(Room, on_delete=models.CASCADE)
@@ -72,7 +88,7 @@ class TacoEntryEvent(models.Model):
         events = events.order_by("time")
         users = User.objects.filter(room=room)
         return [events.filter(user=user).last() for user in users]
-    
+
     def get_last_user_entry(self, user: User):
         if TacoEntryEvent.objects.filter(user=user).order_by("time").exists():
             return TacoEntryEvent.objects.filter(user=user).order_by("time").last()
