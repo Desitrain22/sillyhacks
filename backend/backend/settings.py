@@ -26,7 +26,7 @@ SECRET_KEY = "django-insecure-414h-d&(qw2qm_)n^=q3us20)rjuvauwq))vpjof6+in-ed*jo
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["6d42-2a09-bac1-7680-518-00-289-a9.ngrok-free.app"]
 
 FCM_DJANGO_SETTINGS = {
     # an instance of firebase_admin.App to be used as default for all fcm-django requests

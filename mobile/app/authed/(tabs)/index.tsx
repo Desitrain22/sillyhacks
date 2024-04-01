@@ -143,7 +143,7 @@ export default function Page() {
               key={user_id}
               onPress={async () => {
                 try {
-                  const res = await fetch(`${BASE_URL}/dong_by_api?room_id=${roomCode}&donger=${userId}&dongee=${user_id}&dong_type=1`);
+                  const res = await fetch(`${BASE_URL}/dong_by_api?room_id=${roomCode}&donger=${userId}&dongee=${user_id}&dong_type=1&location_id=1`);
                   await res.json();
                   dongable[i].can_dong = false;
                   setDongable([...dongable]);
@@ -167,7 +167,7 @@ export default function Page() {
               <Dongable
                 onPress={(dongs1 > 0) ? async () => {
                   try {
-                    const res = await fetch(`${BASE_URL}/dong_by_api?room_id=${roomCode}&donger=${userId}&dongee=${name1}&dong_type=-1`);
+                    const res = await fetch(`${BASE_URL}/dong_by_api?room_id=${roomCode}&donger=${userId}&dongee=${name1}&dong_type=-1&location_id=1`);
                     await res.json();
                     setDongCounter({ ...dongCounter, [name1]: dongs1 - 1 })
                   } catch (e) {
