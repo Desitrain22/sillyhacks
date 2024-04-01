@@ -2,7 +2,7 @@ from django.db import models
 
 
 class Room(models.Model):
-    room = models.CharField(max_length=100, primary_key=True)
+    room_id = models.CharField(max_length=100, primary_key=True)
     room_name = models.CharField(max_length=100)
 
 
