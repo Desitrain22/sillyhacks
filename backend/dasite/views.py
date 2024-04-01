@@ -15,9 +15,6 @@ def send_dong_available_to_room(entry_event: TacoEntryEvent):
         Message(notification=Notification(title="Dong Available!", body=message)), topic
     )
 
-    return "dong availability notification sent to {topic}"
-
-
 def send_dong_to_user(dong: Dong):
     topic = (
         dong.dongee.user_id + "_" + dong.dongee.room.room_id
@@ -34,8 +31,6 @@ def send_dong_to_user(dong: Dong):
         ),
         topic,
     )
-    return "dong sent to {dong.dongee.user_id}!"
-
 
 def index(request):
     return HttpResponse("Hello, world. You're at the polls index.")
