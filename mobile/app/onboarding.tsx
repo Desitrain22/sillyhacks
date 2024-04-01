@@ -71,7 +71,7 @@ export default function Page() {
     <Pressable
       className="bg-purple w-full items-center justify-center p-1 py-2 rounded-full"
       onPress={async () => {
-        const response = await fetch(`${BASE_URL}/create_room?name="${groupName}"`)
+        const response = await fetch(`${BASE_URL}/create_room?name=${groupName}`)
         const data = await response.json();
         setRoomCode(data.room_id);
         await AsyncStorage.setItem('room_id', data.room_id);

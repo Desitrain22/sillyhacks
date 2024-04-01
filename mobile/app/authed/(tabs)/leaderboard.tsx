@@ -1,14 +1,17 @@
+import { useState, useEffect } from 'react';
 import {
   Text as _Text,
   View as _View,
   ImageBackground as _ImageBackground,
   ScrollView as _ScrollView,
 } from "react-native";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { styled } from "nativewind";
 import { useFonts } from "expo-font";
+import { router } from 'expo-router';
 import { LinearGradient as _LinearGradient } from 'expo-linear-gradient';
 import { Image as _Image } from 'expo-image';
-import { colors } from '../../../constants';
+import { BASE_URL, colors } from '../../../constants';
 import Loading from '../../../components/Loading'
 
 
@@ -20,6 +23,23 @@ const ImageBackground = styled(_ImageBackground)
 const LinearGradient = styled(_LinearGradient)
 
 export default function Leaderboard() {
+  const [roomCode, setRoomCode] = useState('');
+  const [leaderboard, setLeaderboard] = useState([]);
+
+  useEffect(
+    () => {
+      (async () => {
+        const roomCode = await AsyncStorage.getItem('room_id');
+        if (!roomCode) return router.push('/onboarding');
+        setRoomCode(roomCode);
+
+        const res = await fetch(`${BASE_URL}/get_leaderboard?room_id=${roomCode}`);
+        const data = await res.json();
+        setLeaderboard(data.leaderboard);
+      })();
+    }
+  )
+
   const [fontsLoaded] = useFonts({
     'Stretch Pro': require('../../../assets/fonts/Stretch Pro.otf'),
     'Comic Sans': require('../../../assets/fonts/Comic Sans.ttf')
@@ -47,37 +67,22 @@ export default function Leaderboard() {
 
       <View className="h-1/4">
         <ScrollView className="flex-col w-full px-8 space-y-2">
-          <View className="flex-row items-center justify-center border-solid border-purple border-2 w-full h-16 rounded-full px-8">
-            <Text className="font-stretch text-purple mr-8">1</Text>
-            <Text className="font-stretch text-purple">Neal Patel</Text>
-            <Text className="font-stretch text-pink ml-auto">69</Text>
-          </View>
-          <View className="flex-row items-center justify-center border-solid border-purple border-2 w-full h-16 rounded-full px-8">
-            <Text className="font-stretch text-purple mr-8">1</Text>
-            <Text className="font-stretch text-purple">Neal Patel</Text>
-            <Text className="font-stretch text-pink ml-auto">69</Text>
-          </View>
-          <View className="flex-row items-center justify-center border-solid border-purple border-2 w-full h-16 rounded-full px-8">
-            <Text className="font-stretch text-purple mr-8">1</Text>
-            <Text className="font-stretch text-purple">Neal Patel</Text>
-            <Text className="font-stretch text-pink ml-auto">69</Text>
-          </View>
-          <View className="flex-row items-center justify-center border-solid border-purple border-2 w-full h-16 rounded-full px-8">
-            <Text className="font-stretch text-purple mr-8">1</Text>
-            <Text className="font-stretch text-purple">Neal Patel</Text>
-            <Text className="font-stretch text-pink ml-auto">69</Text>
-          </View>
-          <View className="flex-row items-center justify-center border-solid border-purple border-2 w-full h-16 rounded-full px-8">
-            <Text className="font-stretch text-purple mr-8">1</Text>
-            <Text className="font-stretch text-purple">Neal Patel</Text>
-            <Text className="font-stretch text-pink ml-auto">69</Text>
-          </View>
+          {leaderboard.map(({
+            user_id,
+            dong_count
+          }, i) => (
+            <View key={user_id} className="flex-row items-center justify-center border-solid border-purple border-2 w-full h-16 rounded-full px-8">
+              <Text className="font-stretch text-purple mr-8">{i}</Text>
+              <Text className="font-stretch text-purple">{user_id}</Text>
+              <Text className="font-stretch text-pink ml-auto">{dong_count}</Text>
+            </View>
+          ))}
         </ScrollView>
 
       </View>
       <View className="h-2/3 justify-center items-center w-full bottom-0 p-16">
         <Text className="font-stretch text-lg text-purple">Group Code</Text>
-        <Text className="font-stretch text-4xl text-purple">XXXX</Text>
+        <Text className="font-stretch text-4xl text-purple">{roomCode}</Text>
       </View>
     </ImageBackground>
     <LinearGradient colors={[colors.cyan, colors.green]} className="absolute bottom-0 w-full h-16 bg-transparent" />
