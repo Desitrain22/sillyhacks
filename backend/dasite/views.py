@@ -124,18 +124,9 @@ def get_loaded_dongs(request):
 def get_leaderboard(request):
     if "room_id" in request.GET:
         room_id = request.GET["room_id"]
-        # users = User.objects.filter(room=room_id)
         leaderboard = Dong.get_dong_counts_for_room(
             None, room = Room.objects.get(room_id=room_id)
         )
-        print(leaderboard)
-        #result = {}
-        #for entry in leaderboard:
-        #    result.append(
-        #    {
-        #        "user_id": entry.donger.user_id,
-        #        "dong_count": Dong.get_dong_count_for_user(None, user),
-        #    })
         return JsonResponse({"leaderboard": leaderboard})
     else:
         return HttpResponseBadRequest("Please provide a room_id parameter")
