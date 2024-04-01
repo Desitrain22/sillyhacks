@@ -245,6 +245,7 @@ def check_if_at_bell(request):
                 )
                 event.save()
                 print("user has entered the bell")
+                send_dong_available_to_room(event)
             else:
                 print("user still at the bell")
             return JsonResponse(
@@ -291,6 +292,7 @@ def dong_by_api(request):
                 donger=donger, dongee=dongee, dong_type=dong_type, location=location
             )
             dong.save()
+            send_dong_to_user(dong)
             return JsonResponse(
                 {
                     "donger": donger.user_id,
