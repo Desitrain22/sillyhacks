@@ -11,7 +11,7 @@ def send_dong_available_to_room(entry_event: TacoEntryEvent):
     topic = entry_event.user.room.room_id
     message = f'{entry_event.user.user_id} just entered The "Bell at {entry_event.location.address}!'
 
-    FCMDevice.send_topic_message(
+    return FCMDevice.send_topic_message(
         Message(notification=Notification(title="Dong Available!", body=message)), topic
     )
 
@@ -25,7 +25,7 @@ def send_dong_to_user(dong: Dong):
     message = (
         f"{dong.donger.user_id} just sent a dong to you at {dong.location.address}!"
     )
-    FCMDevice.send_topic_message(
+    return FCMDevice.send_topic_message(
         Message(
             notification=Notification(
                 title="Dong Sent!",
@@ -245,7 +245,7 @@ def check_if_at_bell(request):
                 )
                 event.save()
                 print("user has entered the bell")
-                send_dong_available_to_room(event)
+                print(send_dong_available_to_room(event))
             else:
                 print("user still at the bell")
             return JsonResponse(
@@ -292,7 +292,7 @@ def dong_by_api(request):
                 donger=donger, dongee=dongee, dong_type=dong_type, location=location
             )
             dong.save()
-            send_dong_to_user(dong)
+            print(send_dong_to_user(dong))
             return JsonResponse(
                 {
                     "donger": donger.user_id,
