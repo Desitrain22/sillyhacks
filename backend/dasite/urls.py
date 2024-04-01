@@ -18,4 +18,5 @@ urlpatterns = [
     path("dong_by_api", views.dong_by_api, name="dong_by_api"),
     path("check_if_at_bell", views.check_if_at_bell, name="check_if_at_bell"),
     path("get_loaded_dongs", views.get_loaded_dongs, name="get_loaded_dongs"),
+    path("taco_entry_event", views.taco_entry_event, name="taco_entry_event")
 ]

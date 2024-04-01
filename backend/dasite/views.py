@@ -58,8 +58,7 @@ def get_users_status_for_room(request):
                 "can_dong": entry.status, # False if they've already left the Taco Bell
                 "location": entry.location.address,
                 "timestamp": entry.time,
-            }
-            for entry in entries
+            } for entry in entries if entry != None
         ]
         return JsonResponse({"dongable": result})
     else:
@@ -115,6 +114,17 @@ def get_dong_history(request):
     else:
         return HttpResponseBadRequest("Please provide a user_id parameter")
 
+def taco_entry_event(request):
+    if all(key in request.GET for key in ["user_id", "room_id", "location_id", "status"]):
+        user = User.objects.get(user_id=request.GET["user_id"], room=Room.objects.get(room_id=request.GET["room_id"]))
+        location = Location.objects.get(id=request.GET["location_id"])
+        status = request.GET["status"]
+        room = Room.objects.get(room_id=request.GET["room_id"])
+        print('here')
+        event = TacoEntryEvent(user=user, room=room, location=location, status=status)
+        event.save()
+        return JsonResponse({"user_id": user.user_id, "room_id": room.room_id, "location_id": location.id, "status": status})
+    return HttpResponseBadRequest("Invalid parameters")
 
 def dong_by_api(request):
     if "donger" in request.GET and "dongee" in request.GET:
@@ -139,10 +149,7 @@ def dong_by_api(request):
                     "location": location.address,
                 }
             )
-        elif (
-            TacoEntryEvent.get_last_user_entry(None, dongee).status == 1
-            and dong_type == 1
-        ):
+        elif (TacoEntryEvent.get_last_user_entry(None, dongee) is not None and TacoEntryEvent.get_last_user_entry(None, dongee).status == 1) and dong_type == 1:
             print("user is dongable, issuing dong credit")
             dong = Dong(
                 donger=donger,

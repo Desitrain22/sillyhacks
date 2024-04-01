@@ -74,4 +74,6 @@ class TacoEntryEvent(models.Model):
         return [events.filter(user=user).last() for user in users]
     
     def get_last_user_entry(self, user: User):
-        return TacoEntryEvent.objects.filter(user=user).order_by("time").last()
+        if TacoEntryEvent.objects.filter(user=user).order_by("time").exists():
+            return TacoEntryEvent.objects.filter(user=user).order_by("time").last()
+        return None
