@@ -219,17 +219,18 @@ def check_if_at_bell(request):
                     "location_address": str(location.address),
                 }
             )
-        else:
-            if TacoEntryEvent.get_last_user_entry(None, user).status == 1:
-                print("user has left the bell")
-                event = TacoEntryEvent(
-                    user=user,
-                    room=user.room,
-                    location=location,
-                    status=1,
-                )
-                event.save()
-    return JsonResponse({"at_bell": False})
+    print(TacoEntryEvent.get_last_user_entry(None, user).status)
+    print("here")
+    if TacoEntryEvent.get_last_user_entry(None, user).status == 1:
+        print("user has left the bell")
+        event = TacoEntryEvent(
+            user=user,
+            room=user.room,
+            location=location,
+            status=1,
+        )
+        event.save()
+    # return JsonResponse({"at_bell": False})
 
 
 def dong_by_api(request):
