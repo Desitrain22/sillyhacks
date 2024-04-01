@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { 
   ImageBackground as _ImageBackground,
   Text as _Text,
@@ -10,6 +11,8 @@ import {
 import { styled } from 'nativewind';
 import { Image as _Image } from 'expo-image';
 import { useFonts } from 'expo-font';
+import { router } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { LinearGradient as _LinearGradient } from 'expo-linear-gradient';
 import { colors } from '../../../constants';
 import Loading from '../../../components/Loading';
@@ -74,6 +77,18 @@ const Dongable = ({
 </View>
 
 export default function Page() {
+  const [roomCode, setRoomCode] = useState('');
+
+  useEffect(
+    () => {
+      (async () => {
+        const roomCode = await AsyncStorage.getItem('room_id');
+        if (!roomCode) return router.push('/onboarding');
+        setRoomCode(roomCode);
+        
+      })();
+    }
+  )
 
   const [fontsLoaded] = useFonts({
     'Stretch Pro': require('../../../assets/fonts/Stretch Pro.otf'),
