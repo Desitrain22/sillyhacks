@@ -30,7 +30,7 @@ class Dong(models.Model):
         sum_dong_type = dongs.aggregate(total_dong_type=models.Sum("dong_type"))[
             "total_dong_type"
         ]
-        return sum_dong_type
+        return sum_dong_type if type(sum_dong_type) == int else 0
     
     def get_dong_count_for_user(self, donger: User):
         dongs = Dong.objects.filter(donger=donger, dong_type=1)

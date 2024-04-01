@@ -83,8 +83,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
     async def receive(self, text_data):
         text_data_json = json.loads(text_data)
         message = json.loads(text_data_json["message"])
-        print(message)
-
+        
         if message["type"] == "user":
             user = await DatabaseSyncToAsync(self.create_user)(
                 user_id=message["user_id"]
@@ -96,7 +95,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 + self.display_name
                 + '"}'
             )
-            print(msg)
             await self.channel_layer.group_send(
                 self.room_group_name,
                 {

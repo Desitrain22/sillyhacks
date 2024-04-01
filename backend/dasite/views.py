@@ -58,6 +58,19 @@ def get_unloadable(request):
         return HttpResponseBadRequest("Please provide a room_id parameter")
 
 
+def get_loaded_dongs(request):
+    if "room_id" in request.GET:
+        room = Room.objects.get(room_id=request.GET["room_id"])
+        users = User.objects.filter(room_id=room)
+        donger = User.objects.get(user_id=request.GET["user_id"])
+        result = {}
+        for user in users:
+            if user != donger:
+                dongs = Dong.get_available_dongs(None, donger, user)
+                result[user.user_id] = dongs
+        return JsonResponse(result)
+
+
 def get_leaderboard(request):
     if "room_id" in request.GET:
         room_id = request.GET["room_id"]
@@ -163,6 +176,7 @@ def check_if_at_bell(request):
                 }
             )
     return JsonResponse({"at_bell": False})
+
 
 def generate_code():
     code = "".join(random.choices(string.ascii_uppercase, k=6))
