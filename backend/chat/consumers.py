@@ -3,7 +3,7 @@ import json
 from asgiref.sync import async_to_sync
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import DatabaseSyncToAsync
-from dasite.models import User, Room, Dong, Location, TacoEntrance, Dongable
+from dasite.models import User, Room, Dong, Location, TacoEntryEvent, Dongable
 
 
 class ChatConsumer(AsyncWebsocketConsumer):
@@ -47,7 +47,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         location = self.get_location(location_id)
         user = self.get_user(user_id)
         room = self.query_room()
-        taco_entrance = TacoEntrance(
+        taco_entrance = TacoEntryEvent(
             user=user, room=room, location=location, status=status
         )
         taco_entrance.save()
@@ -58,15 +58,20 @@ class ChatConsumer(AsyncWebsocketConsumer):
         donger = self.get_user(donger)
         dongee = self.get_user(dongee)
         location = self.get_location(location_id)
-        if (dong_type == -1) and (Dong.get_available_dongs(None, donger, dongee) > 0): #If the user is trying to issue a dong, check if they even can.
+        if (dong_type == -1) and (
+            Dong.get_available_dongs(None, donger, dongee) > 0
+        ):  # If the user is trying to issue a dong, check if they even can.
             print("dong available, sending dong")
             dong = Dong(
                 donger=donger, dongee=dongee, dong_type=dong_type, location=location
             )
             dong.save()
             return dong
-        elif (Dongable.objects.filter(user=dongee, can_dong=True).exists() and dong_type == 1):
-            print('user is dongable, issuing dong credit')
+        elif (
+            Dongable.objects.filter(user=dongee, can_dong=True).exists()
+            and dong_type == 1
+        ):
+            print("user is dongable, issuing dong credit")
             dong = Dong(
                 donger=donger,
                 dongee=dongee,
@@ -83,7 +88,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
     async def receive(self, text_data):
         text_data_json = json.loads(text_data)
         message = json.loads(text_data_json["message"])
-        
+
         if message["type"] == "user":
             user = await DatabaseSyncToAsync(self.create_user)(
                 user_id=message["user_id"]

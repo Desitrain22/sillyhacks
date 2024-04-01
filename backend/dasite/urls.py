@@ -6,6 +6,7 @@ urlpatterns = [
     path("", views.index, name="index"),
     path("room", views.room, name="room"),
     path("check_user", views.check_user, name="check_user"),
+    path("check_room", views.check_room, name="check_room"),
     path(
         "get_actively_dongable",
         views.get_actively_dongable,
