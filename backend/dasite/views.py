@@ -74,7 +74,7 @@ def get_users_status_for_room(request):
         result = [
             {
                 "user_id": entry.user.user_id,
-                "can_dong": entry.status,  # False if they've already left the Taco Bell
+                "can_dong": entry.status, 
                 "location": entry.location.address,
                 "timestamp": entry.time,
             }
