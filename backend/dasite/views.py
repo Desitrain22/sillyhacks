@@ -3,42 +3,6 @@ from django.http import HttpResponse, JsonResponse, HttpResponseBadRequest
 from .models import Room, User, Dong, Location, TacoEntryEvent, UserDevice
 import random
 import string
-# from pyfcm import FCMNotification
-# import os
-
-# API_KEY = os.getenv("FCM_API_KEY")
-
-# def add_users_to_room_topic(room_id: str, registration_ids: list[str]):
-#     topic = room_id
-#     push_service = FCMNotification(API_KEY)
-#     result = push_service.subscribe_registration_ids_to_topic(registration_ids=registration_ids, topic_name=topic)
-#     return result
-
-# def send_notification_to_topic(topic_name, title, message):
-#     push_service = FCMNotification(API_KEY)
-    
-#     result = push_service.notify_topic_subscribers(
-#         topic_name=topic_name,
-#         message_title=title,
-#         message_body=message
-#     )
-    
-#     return result
-
-# def notify_dong_available(room_id: str, event: TacoEntryEvent):
-#     topic = room_id
-#     title = "Dong Available"
-#     victim = event.user.user_id
-#     location = event.location.address
-#     message = f"{victim} just entered The 'Bell at {location}!"
-#     return send_notification_to_topic(topic, title, message)
-
-# def notify_dong_sent(room_id: str, donger: User, dongee: User, location: Location):
-#     topic = room_id
-#     title = "Dong Sent"
-#     message = f"{donger.user_id} just sent a dong to {dongee.user_id} at {location.address}!"
-#     return send_notification_to_topic(topic, title, message)
-
 from firebase_admin.messaging import Message, Notification
 from fcm_django.models import UserDevice
 
