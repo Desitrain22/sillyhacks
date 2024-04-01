@@ -8,6 +8,7 @@ import { styled } from "nativewind";
 import { useFonts } from "expo-font";
 import { LinearGradient as _LinearGradient } from 'expo-linear-gradient';
 import PieChart from 'react-native-pie-chart'
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { colors, chartColors } from '../../../constants';
 import Loading from '../../../components/Loading';
 
@@ -19,6 +20,11 @@ const ScrollView = styled(_ScrollView)
 
 const ImageBackground = styled(_ImageBackground)
 const LinearGradient = styled(_LinearGradient)
+
+// Generate random hex color
+const generateRandomHexColor = () => {
+  return `#${Math.floor(Math.random() * 16777215).toString(16)}`
+}
 
 export default function History() {
   const [fontsLoaded] = useFonts({

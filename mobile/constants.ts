@@ -10,3 +10,5 @@ export const colors = {
   ...chartColors,
   'cyan': '#D3FFFF',
 }
+
+export const BASE_URL = ``;

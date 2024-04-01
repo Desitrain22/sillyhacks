@@ -4,6 +4,9 @@ import { styled } from "nativewind";
 import Loading from '../components/Loading'
 import { useFonts } from "expo-font";
 import { router, Link } from "expo-router";
+import { BASE_URL } from "../constants";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 type OnboardingStepEnum = 'onboarding' | 'join_group' | 'create_group' | 'joined'
 
@@ -16,6 +19,7 @@ export default function Page() {
   const [name, setName] = useState('');
   const [groupCode, setGroupCode] = useState('');
   const [groupName, setGroupName] = useState('');
+  const [roomCode, setRoomCode] = useState('');
   const [step, setStep] = useState<OnboardingStepEnum>('onboarding');
   const [fontsLoaded] = useFonts({
     'Stretch Pro': require('../assets/fonts/Stretch Pro.otf'),
@@ -49,7 +53,11 @@ export default function Page() {
     />
     <Pressable
       className="bg-purple w-full items-center justify-center p-1 py-2 rounded-full"
-      onPress={() => setStep('join_group')}
+      onPress={async () => {
+        const response = await fetch(`${BASE_URL}/room?name="${groupName}"`)
+        const data = await response.json();
+        setRoomCode(data.room_id);
+      }}
     >
       <Text className="font-comic text-light-green text-lg">ENTER CODE</Text>
     </Pressable>
@@ -79,7 +87,7 @@ export default function Page() {
 
   const Joined = <View className="items-center w-full">
     <Text className="font-stretch text-purple">Here is your group code:</Text>
-    <Text className="item-self-center font-stretch text-purple text-6xl my-2">XXXX</Text>
+    <Text className="item-self-center font-stretch text-purple text-6xl my-2">{roomCode}</Text>
     <Link href='authed' asChild>
     <Pressable
       className="bg-purple w-full items-center justify-center p-1 py-2 rounded-full"
