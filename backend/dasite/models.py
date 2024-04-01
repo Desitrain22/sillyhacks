@@ -8,7 +8,7 @@ class Room(models.Model):
 
 class User(models.Model):
     user_id = models.CharField(max_length=100, primary_key=True)
-    room_id = models.ForeignKey(Room, on_delete=models.CASCADE)
+    room = models.ForeignKey(Room, on_delete=models.CASCADE)
 
 
 class Location(models.Model):
