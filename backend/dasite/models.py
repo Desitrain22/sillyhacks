@@ -48,7 +48,6 @@ class Dong(models.Model):
         result = []
         for user_entry in dongs_per_user:
             result.append({user_entry["donger__user_id"]: user_entry["entries_count"]})
-            print(f"{user_entry['donger__user_id']}: {user_entry['entries_count']}")
         return result
 
     def get_total_unloadable_dongs(self, donger: User):

@@ -127,6 +127,12 @@ def get_leaderboard(request):
         leaderboard = Dong.get_dong_counts_for_room(
             None, room = Room.objects.get(room_id=room_id)
         )
+        leaderboard = {list(entry.keys())[0]: list(entry.values())[0] for entry in leaderboard}
+        users = list(User.objects.filter(room=Room.objects.get(room_id=room_id)).values("user_id"))
+        for user in users:
+            if user['user_id'] not in leaderboard:
+                leaderboard[user['user_id']] = 0
+        print(leaderboard)        
         return JsonResponse({"leaderboard": leaderboard})
     else:
         return HttpResponseBadRequest("Please provide a room_id parameter")
@@ -169,9 +175,9 @@ def taco_entry_event(request):
 
 
 def dong_by_api(request):
-    if "donger" in request.GET and "dongee" in request.GET:
-        donger = User.objects.get(user_id=request.GET["donger"])
-        dongee = User.objects.get(user_id=request.GET["dongee"])
+    if ["donger","dongee","room_id","dong_type"] in request.GET:
+        donger = User.objects.get(user_id=request.GET["donger"], room=Room.objects.get(room_id=request.GET["room_id"]))
+        dongee = User.objects.get(user_id=request.GET["dongee"], room=Room.objects.get(room_id=request.GET["room_id"]))
         dong_type = 1 if request.GET["dong_type"] == "1" else -1
         location = Location.objects.get(id=request.GET["location_id"])
         if (dong_type == -1) and (
