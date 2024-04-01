@@ -39,7 +39,7 @@ export default function Leaderboard() {
         setLeaderboard(data.leaderboard);
       })();
     }
-  ,[path]);
+    , [path]);
 
   const [fontsLoaded] = useFonts({
     'Stretch Pro': require('../../../assets/fonts/Stretch Pro.otf'),
@@ -68,16 +68,14 @@ export default function Leaderboard() {
 
       <View className="h-1/4">
         <ScrollView className="flex-col w-full px-8 space-y-2">
-          {leaderboard.map(({
-            user_id,
-            dong_count
-          }, i) => (
-            <View key={user_id} className="flex-row items-center justify-center border-solid border-purple border-2 w-full h-16 rounded-full px-8">
-              <Text className="font-stretch text-purple mr-8">{i}</Text>
-              <Text className="font-stretch text-purple">{user_id}</Text>
-              <Text className="font-stretch text-pink ml-auto">{dong_count}</Text>
-            </View>
-          ))}
+          {leaderboard.map((data, i) => (Object.entries(data).map(
+            ([key, value]) => (
+              <View key={key} className="flex-row items-center justify-center border-solid border-purple border-2 w-full h-16 rounded-full px-8">
+                <Text className="font-stretch text-purple mr-8">{i}</Text>
+                <Text className="font-stretch text-purple">{key}</Text>
+                <Text className="font-stretch text-pink ml-auto">{value as any}</Text>
+              </View>
+            ))).at(0))}
         </ScrollView>
 
       </View>
