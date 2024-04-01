@@ -3,7 +3,7 @@ import { View as _View, Text as _Text, TextInput as _TextInput, Pressable as _Pr
 import { styled } from "nativewind";
 import Loading from '../components/Loading'
 import { useFonts } from "expo-font";
-import { router, Link } from "expo-router";
+import { router } from "expo-router";
 import { BASE_URL } from "../constants";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -97,7 +97,7 @@ export default function Page() {
         try {
           const res = await fetch(`${BASE_URL}/create_user?user_id=${name}&room_id=${roomCode}`)
           await res.json();
-          await AsyncStorage.setItem('username', name);
+          await AsyncStorage.setItem('user_id', name);
           router.push('/authed');
         } catch (e) {
           return setNameExists(true);
