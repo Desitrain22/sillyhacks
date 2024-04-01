@@ -7,8 +7,7 @@ import { router, Link } from "expo-router";
 import { BASE_URL } from "../constants";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-
-type OnboardingStepEnum = 'onboarding' | 'join_group' | 'create_group' | 'joined'
+type OnboardingStepEnum = 'onboarding' | 'join_group' | 'create_group' | 'created' | 'joined'
 
 const View = styled(_View)
 const Text = styled(_Text)
@@ -17,6 +16,7 @@ const Pressable = styled(_Pressable)
 
 export default function Page() {
   const [name, setName] = useState('');
+  const [nameExists, setNameExists] = useState(false);
   const [groupCode, setGroupCode] = useState('');
   const [groupName, setGroupName] = useState('');
   const [roomCode, setRoomCode] = useState('');
@@ -36,9 +36,19 @@ export default function Page() {
       onChangeText={setName}
       className="font-comic w-full bg-white p-2 border-solid border-purple border-2 rounded-full my-2"
     />
+    {nameExists && <Text className="font-stretch text-magenta">A user with this name already exists</Text>}
     <Pressable
       className="bg-purple w-full items-center justify-center p-1 py-2 rounded-full"
-      onPress={() => setStep('join_group')}
+      onPress={async () => {
+        const response = await fetch(`${BASE_URL}/check_user?name="${name}"`)
+        const { exists } = await response.json();
+        if (exists) {
+          setNameExists(true);
+          return;
+        }
+        await AsyncStorage.setItem('username', name);
+        setStep('join_group')
+      }}
     >
       <Text className="font-comic text-light-green text-lg">ENTER NAME</Text>
     </Pressable>
@@ -57,6 +67,8 @@ export default function Page() {
         const response = await fetch(`${BASE_URL}/room?name="${groupName}"`)
         const data = await response.json();
         setRoomCode(data.room_id);
+        await AsyncStorage.setItem('room_id', data.room_id);
+        setStep('joined')
       }}
     >
       <Text className="font-comic text-light-green text-lg">ENTER CODE</Text>
@@ -79,22 +91,45 @@ export default function Page() {
     />
     <Pressable
       className="bg-purple w-full items-center justify-center p-1 py-2 rounded-full"
-      onPress={() => setStep('joined')}
+      onPress={async () => {
+        const response = await fetch(`${BASE_URL}/room?name="${groupName}"`)
+        const data = await response.json();
+        setRoomCode(data.room_id);
+        await AsyncStorage.setItem('room_id', data.room_id);
+        setStep('created')
+      }}
     >
       <Text className="font-comic text-light-green text-lg">CREATE</Text>
     </Pressable>
   </>
 
   const Joined = <View className="items-center w-full">
+    <Text className="font-stretch text-purple">You have joined: </Text>
+    <Text className="item-self-center font-stretch text-purple text-6xl my-2">{groupName}</Text>
+    <Link href='authed' asChild>
+      <Pressable
+        className="bg-purple w-full items-center justify-center p-1 py-2 rounded-full"
+        onPress={() => {
+          router.push('/authed');
+        }}
+      >
+        <Text className="font-comic text-light-green text-lg">START DONGING</Text>
+      </Pressable>
+    </Link>
+  </View>
+
+  const Created = <View className="items-center w-full">
     <Text className="font-stretch text-purple">Here is your group code:</Text>
     <Text className="item-self-center font-stretch text-purple text-6xl my-2">{roomCode}</Text>
     <Link href='authed' asChild>
-    <Pressable
-      className="bg-purple w-full items-center justify-center p-1 py-2 rounded-full"
-      onPress={() => setStep('joined')}
-    >
-      <Text className="font-comic text-light-green text-lg">START DONGING</Text>
-    </Pressable>
+      <Pressable
+        className="bg-purple w-full items-center justify-center p-1 py-2 rounded-full"
+        onPress={() => {
+          router.push('/authed');
+        }}
+      >
+        <Text className="font-comic text-light-green text-lg">START DONGING</Text>
+      </Pressable>
     </Link>
   </View>
 
@@ -103,5 +138,6 @@ export default function Page() {
     {step === 'join_group' && JoinGroup}
     {step === 'create_group' && CreateGroup}
     {step === 'joined' && Joined}
+    {step === 'created' && Created}
   </View>
 }
