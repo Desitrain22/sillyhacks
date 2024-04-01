@@ -11,7 +11,7 @@ import {
 import { styled } from 'nativewind';
 import { Image as _Image } from 'expo-image';
 import { useFonts } from 'expo-font';
-import { router } from 'expo-router';
+import { router, usePathname } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { LinearGradient as _LinearGradient } from 'expo-linear-gradient';
 import { colors } from '../../../constants';
@@ -79,6 +79,7 @@ const Dongable = ({
 export default function Page() {
   const [roomCode, setRoomCode] = useState('');
 
+  const path = usePathname();
   useEffect(
     () => {
       (async () => {
@@ -88,7 +89,7 @@ export default function Page() {
         
       })();
     }
-  )
+    , [path])
 
   const [fontsLoaded] = useFonts({
     'Stretch Pro': require('../../../assets/fonts/Stretch Pro.otf'),

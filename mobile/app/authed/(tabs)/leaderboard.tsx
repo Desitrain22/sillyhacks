@@ -8,7 +8,7 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { styled } from "nativewind";
 import { useFonts } from "expo-font";
-import { router } from 'expo-router';
+import { router, usePathname } from 'expo-router';
 import { LinearGradient as _LinearGradient } from 'expo-linear-gradient';
 import { Image as _Image } from 'expo-image';
 import { BASE_URL, colors } from '../../../constants';
@@ -25,6 +25,7 @@ const LinearGradient = styled(_LinearGradient)
 export default function Leaderboard() {
   const [roomCode, setRoomCode] = useState('');
   const [leaderboard, setLeaderboard] = useState([]);
+  const path = usePathname();
 
   useEffect(
     () => {
@@ -38,7 +39,7 @@ export default function Leaderboard() {
         setLeaderboard(data.leaderboard);
       })();
     }
-  )
+  ,[path]);
 
   const [fontsLoaded] = useFonts({
     'Stretch Pro': require('../../../assets/fonts/Stretch Pro.otf'),
