@@ -16,9 +16,10 @@ TaskManager.defineTask<{ locations: Location.LocationObject[] }>(LOCATION_TASK_N
   if (data) {
     const { locations } = data;
     const userId = await AsyncStorage.getItem('user_id');
+    const roomCode = await AsyncStorage.getItem('room_id');
     await Promise.allSettled(locations.map((location) => {
       const { latitude, longitude } = location.coords;
-      return fetch(`${BASE_URL}/check_if_at_bell?user_id=${userId}&lat=${latitude}&lon=${longitude}`)
+      return fetch(`${BASE_URL}/check_if_at_bell?user_id=${userId}&lat=${latitude}&lon=${longitude}&room_id=${roomCode}`)
     }));
     // do something with the locations captured in the background
   }
