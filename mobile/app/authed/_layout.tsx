@@ -3,23 +3,23 @@ import * as TaskManager from 'expo-task-manager';
 import * as Location from 'expo-location';
 import { StatusBar } from 'expo-status-bar';
 import { Stack } from 'expo-router/stack';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { BASE_URL } from '../../constants';
 
 const LOCATION_TASK_NAME = 'background-location-task';
 
-var wsSingleton: WebSocket | null = null;
-
-TaskManager.defineTask<{ locations: Location.LocationObject[] }>(LOCATION_TASK_NAME, ({ data, error }) => {
+TaskManager.defineTask<{ locations: Location.LocationObject[] }>(LOCATION_TASK_NAME, async ({ data, error }) => {
   if (error) {
     // Error occurred - check `error.message` for more details.
     return;
   }
-  if (wsSingleton && data) {
+  if (data) {
     const { locations } = data;
-    for (const location in locations) {
-      if (location) {
-        console.log(location);
-      }
-    }
+    const userId = await AsyncStorage.getItem('user_id');
+    await Promise.allSettled(locations.map((location) => {
+      const { latitude, longitude } = location.coords;
+      return fetch(`${BASE_URL}/check_if_at_bell?user_id=${userId}&lat=${latitude}&lon=${longitude}`)
+    }));
     // do something with the locations captured in the background
   }
 });
