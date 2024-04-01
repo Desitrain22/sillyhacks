@@ -13,7 +13,7 @@ def index(request):
     return HttpResponse("Hello, world. You're at the polls index.")
 
 
-def room(request):
+def create_room(request):
     if "name" in request.GET:
         name = request.GET["name"]
         code = generate_code()
@@ -27,54 +27,36 @@ def room(request):
     else:
         return HttpResponseBadRequest("Please provide a name parameter")
 
-
 def check_room(request):
     if "room_id" in request.GET:
-        room_id = request.GET["room_id"]
-        if Room.objects.filter(room_id=room_id).exists():
-            return JsonResponse({"exists": True})
-        return JsonResponse({"exists": False})
+        return JsonResponse({"room_exists": Room.objects.filter(room_id=request.GET["room_id"]).exists()})
+    return HttpResponseBadRequest("Please provide a room_id parameter")
+
+
+def create_user(request):
+    if "user_id" in request.GET and ("room_id" in request.GET):
+        if Room.objects.filter(room_id=request.GET["room_id"]).exists(): # check if room_id is valid
+            room = Room.objects.get(room_id=request.GET["room_id"])
+            if User.objects.filter(user_id=request.GET["user_id"], room = room).exists(): # make sure the username isn't taken in this room
+                return HttpResponseBadRequest("Username already exists in this room")
+            user = User(user_id = request.GET["user_id"], room = room)
+            user.save()
+            return JsonResponse({"user_id": user.user_id, "room_id": user.room_id.room_id})
     else:
-        return HttpResponseBadRequest("Please provide a room_id parameter")
+        return HttpResponseBadRequest("Please provide a room_id and user_id parameter")
 
 
-def check_user(request):
-    if "user_id" in request.GET:
-        user_id = request.GET["user_id"]
-        if User.objects.filter(user_id=user_id).exists():
-            return JsonResponse({"exists": True})
-        else:
-            if "create" in request.GET:  # create user is username is available
-                if "room_id" in request.GET and check_room(request)["exists"]:
-                    room_id = request.GET["room_id"]
-                    user = User(
-                        user_id=user_id, room_id=Room.objects.get(room_id=room_id)
-                    )
-                    user.save()
-                    return JsonResponse(
-                        {
-                            "exists": True,
-                            "user_id": user.user_id,
-                            "room_id": user.room_id.room_id,
-                        }
-                    )
-                else:
-                    return JsonResponse({"exists": False, "error": "valid room_id required"})
-            return JsonResponse({"exists": False})
-    else:
-        return HttpResponseBadRequest("Please provide a user_id parameter")
-
-
-def get_actively_dongable(request):
-    if "room_id" in request.GET:
+def get_users_status_for_room(request):
+    if "room_id" in request.GET and Room.objects.filter(room_id=request.GET["room_id"]).exists():
         room_id = request.GET["room_id"]
         room = Room.objects.get(room_id=room_id)
-        room_users = User.objects.filter(room_id=room)
+        
+        room_users = User.objects.filter(room=room)
         entries = [TacoEntryEvent.get_last_user_entry(None, users) for users in room_users]
         result = [
             {
                 "user_id": entry.user_id,
-                "can_dong": entry.status,
+                "can_dong": entry.status, # False if they've already left the Taco Bell
                 "location": entry.location.address,
                 "timestamp": entry.time,
             }
@@ -85,10 +67,10 @@ def get_actively_dongable(request):
         return HttpResponseBadRequest("Please provide a room_id parameter")
 
 
-def get_unloadable(request):
-    if "user_id" in request.GET:
+def get_total_unloadable(request):
+    if "user_id" in request.GET and Room.objects.filter(room_id=request.GET["room_id"]).exists():
         user_id = request.GET["user_id"]
-        user = User.objects.get(user_id=user_id)
+        user = User.objects.get(user_id=user_id, room=Room.objects.get(room_id=request.GET["room_id"]))
         dongable = Dong.get_total_unloadable_dongs(None, user)
         return JsonResponse({"dongs_unloadable": dongable})
     else:
@@ -96,10 +78,11 @@ def get_unloadable(request):
 
 
 def get_loaded_dongs(request):
-    if "room_id" in request.GET:
+    if "user_id" in request.GET and Room.objects.filter(room_id=request.GET["room_id"]).exists():
+        donger = User.objects.get(user_id=request.GET["user_id"], room=Room.objects.get(room_id=request.GET["room_id"]))
         room = Room.objects.get(room_id=request.GET["room_id"])
-        users = User.objects.filter(room_id=room)
-        donger = User.objects.get(user_id=request.GET["user_id"])
+        users = User.objects.filter(room=room)
+        
         result = {}
         for user in users:
             if user != donger:
@@ -111,7 +94,7 @@ def get_loaded_dongs(request):
 def get_leaderboard(request):
     if "room_id" in request.GET:
         room_id = request.GET["room_id"]
-        users = User.objects.filter(room_id=room_id)
+        users = User.objects.filter(room=room_id)
         leaderboard = []
         for user in users:
             leaderboard.append(
