@@ -160,7 +160,6 @@ def taco_entry_event(request):
         location = Location.objects.get(id=request.GET["location_id"])
         status = request.GET["status"]
         room = Room.objects.get(room_id=request.GET["room_id"])
-        print("here")
         event = TacoEntryEvent(user=user, room=room, location=location, status=status)
         event.save()
         return JsonResponse(
