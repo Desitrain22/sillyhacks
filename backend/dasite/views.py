@@ -201,7 +201,12 @@ def check_if_at_bell(request):
             abs(location.latitude - lat) < 0.0002
             and abs(location.longitude - long) < 0.0002
         ):  # within 75 feet of the center of tacobell
-            if TacoEntryEvent.get_last_user_entry(None, user).status == 0:
+            if (
+                TacoEntryEvent.get_last_user_entry(None, user)
+                is None  # If no entrances logged yet
+                or TacoEntryEvent.get_last_user_entry(None, user).status
+                == 0  # If the last event was a leave
+            ):
                 event = TacoEntryEvent(
                     user=user,
                     room=user.room,
@@ -219,18 +224,21 @@ def check_if_at_bell(request):
                     "location_address": str(location.address),
                 }
             )
-    print(TacoEntryEvent.get_last_user_entry(None, user).status)
-    print("here")
-    if TacoEntryEvent.get_last_user_entry(None, user).status == 1:
+    if (
+        TacoEntryEvent.get_last_user_entry(None, user)
+        != None  # If there are any entries
+    ) and TacoEntryEvent.get_last_user_entry(
+        None, user
+    ).status == 1:  # last event was an entrance
         print("user has left the bell")
         event = TacoEntryEvent(
             user=user,
             room=user.room,
             location=location,
-            status=1,
+            status=0,
         )
         event.save()
-    # return JsonResponse({"at_bell": False})
+    return JsonResponse({"at_bell": False})
 
 
 def dong_by_api(request):
@@ -286,25 +294,6 @@ def dong_by_api(request):
         else:
             print("dong not available")
             return HttpResponseBadRequest("Invalid Dong")
-
-
-def check_if_at_bell(request):
-    lat = float(request.GET["lat"])
-    long = float(request.GET["long"])
-    locations = Location.objects.all()
-    for location in locations:
-        if (
-            abs(location.latitude - lat) < 0.0002
-            and abs(location.longitude - long) < 0.0002
-        ):  # within 75 feet of the center of tacobell
-            return JsonResponse(
-                {
-                    "at_bell": True,
-                    "location_id": str(location.id),
-                    "location_address": str(location.address),
-                }
-            )
-    return JsonResponse({"at_bell": False})
 
 
 def generate_code():
