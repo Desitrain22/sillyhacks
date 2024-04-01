@@ -1,25 +1,41 @@
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse, HttpResponseBadRequest
-from .models import Room, User, Dong, Location, TacoEntryEvent, UserDevice
+from .models import Room, User, Dong, Location, TacoEntryEvent
 import random
 import string
 from firebase_admin.messaging import Message, Notification
-from fcm_django.models import UserDevice
+from fcm_django.models import FCMDevice
+
 
 def send_dong_available_to_room(entry_event: TacoEntryEvent):
     topic = entry_event.user.room.room_id
     message = f'{entry_event.user.user_id} just entered The "Bell at {entry_event.location.address}!'
-    
-    UserDevice.send_topic_message(
+
+    FCMDevice.send_topic_message(
         Message(notification=Notification(title="Dong Available!", body=message)), topic
     )
-    
+
     return "dong availability notification sent to {topic}"
-    
+
+
 def send_dong_to_user(dong: Dong):
-    device = UserDevice.objects.get(user=dong.dongee)
-    device.send_message(Message(notification=Notification(title="Dong Sent!", body=f'{dong.donger.user_id} just sent a dong to you at {dong.location.address}!')))
+    topic = (
+        dong.dongee.user_id + "_" + dong.dongee.room.room_id
+    )  # topic for individual user is user_id + _ + room_id
+    message = (
+        f"{dong.donger.user_id} just sent a dong to you at {dong.location.address}!"
+    )
+    FCMDevice.send_topic_message(
+        Message(
+            notification=Notification(
+                title="Dong Sent!",
+                body=message,
+            )
+        ),
+        topic,
+    )
     return "dong sent to {dong.dongee.user_id}!"
+
 
 def index(request):
     return HttpResponse("Hello, world. You're at the polls index.")
