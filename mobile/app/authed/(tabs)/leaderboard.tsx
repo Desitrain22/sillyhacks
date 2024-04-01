@@ -82,7 +82,7 @@ export default function Leaderboard() {
       </View>
       <View className="h-2/3 justify-center items-center w-full bottom-0 p-16">
         <Text className="font-stretch text-lg text-purple">Group Code</Text>
-        <Text className="font-stretch text-4xl text-purple">{roomCode}</Text>
+        <Text className="font-stretch text-4xl text-purple">{Array.from(roomCode).join(`\u200B`)}</Text>
       </View>
     </ImageBackground>
     <LinearGradient colors={[colors.cyan, colors.green]} className="absolute bottom-0 w-full h-16 bg-transparent" />

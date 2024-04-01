@@ -122,7 +122,7 @@ export default function Page() {
 
   const Created = <View className="items-center w-full">
     <Text className="font-stretch text-purple">Here is your group code:</Text>
-    <Text className="item-self-center font-stretch text-purple text-6xl my-2">{roomCode}</Text>
+    <Text className="item-self-center font-stretch text-purple text-6xl my-2">{Array.from(roomCode).join(`\u200B`)}</Text>
     <Pressable
       className="bg-purple w-full items-center justify-center p-1 py-2 rounded-full"
       onPress={() => setStep('create_user')}
