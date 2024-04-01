@@ -11,8 +11,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 from pathlib import Path
-from firebase_admin import initialize_app
-FIREBASE_APP = initialize_app()
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -28,6 +27,20 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+FCM_DJANGO_SETTINGS = {
+    # an instance of firebase_admin.App to be used as default for all fcm-django requests
+    # default: None (the default Firebase app)
+    "DEFAULT_FIREBASE_APP": None,
+    # default: _('FCM Django')
+    "APP_VERBOSE_NAME": "FCM Django Sillyhacks",
+    # true if you want to have only one active device per registered user at a time
+    # default: False
+    "ONE_DEVICE_PER_USER": True,
+    # devices to which notifications cannot be sent,
+    # are deleted upon receiving error response from FCM
+    # default: False
+    "DELETE_INACTIVE_DEVICES": True,
+}
 
 # Application definition
 
@@ -42,9 +55,7 @@ CHANNEL_LAYERS = {
 }
 
 INSTALLED_APPS = [
-    #"daphne",
-    #"chat",
-    #"fcm_django",
+    "fcm_django",
     "dasite.apps.DasiteConfig",
     "django.contrib.admin",
     "django.contrib.auth",

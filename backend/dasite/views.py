@@ -1,11 +1,61 @@
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse, HttpResponseBadRequest
-from .models import Room, User, Dong, Location, TacoEntryEvent
+from .models import Room, User, Dong, Location, TacoEntryEvent, UserDevice
 import random
 import string
+# from pyfcm import FCMNotification
+# import os
+
+# API_KEY = os.getenv("FCM_API_KEY")
+
+# def add_users_to_room_topic(room_id: str, registration_ids: list[str]):
+#     topic = room_id
+#     push_service = FCMNotification(API_KEY)
+#     result = push_service.subscribe_registration_ids_to_topic(registration_ids=registration_ids, topic_name=topic)
+#     return result
+
+# def send_notification_to_topic(topic_name, title, message):
+#     push_service = FCMNotification(API_KEY)
+    
+#     result = push_service.notify_topic_subscribers(
+#         topic_name=topic_name,
+#         message_title=title,
+#         message_body=message
+#     )
+    
+#     return result
+
+# def notify_dong_available(room_id: str, event: TacoEntryEvent):
+#     topic = room_id
+#     title = "Dong Available"
+#     victim = event.user.user_id
+#     location = event.location.address
+#     message = f"{victim} just entered The 'Bell at {location}!"
+#     return send_notification_to_topic(topic, title, message)
+
+# def notify_dong_sent(room_id: str, donger: User, dongee: User, location: Location):
+#     topic = room_id
+#     title = "Dong Sent"
+#     message = f"{donger.user_id} just sent a dong to {dongee.user_id} at {location.address}!"
+#     return send_notification_to_topic(topic, title, message)
 
 from firebase_admin.messaging import Message, Notification
+from fcm_django.models import UserDevice
 
+def send_dong_available_to_room(entry_event: TacoEntryEvent):
+    topic = entry_event.user.room.room_id
+    message = f'{entry_event.user.user_id} just entered The "Bell at {entry_event.location.address}!'
+    
+    UserDevice.send_topic_message(
+        Message(notification=Notification(title="Dong Available!", body=message)), topic
+    )
+    
+    return "dong availability notification sent to {topic}"
+    
+def send_dong_to_user(dong: Dong):
+    device = UserDevice.objects.get(user=dong.dongee)
+    device.send_message(Message(notification=Notification(title="Dong Sent!", body=f'{dong.donger.user_id} just sent a dong to you at {dong.location.address}!')))
+    return "dong sent to {dong.dongee.user_id}!"
 
 def index(request):
     return HttpResponse("Hello, world. You're at the polls index.")

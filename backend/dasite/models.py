@@ -1,6 +1,6 @@
 from django.db import models
 from django.db.models import Count
-
+from fcm_django.models import FCMDevice
 
 class Room(models.Model):
     room_id = models.CharField(max_length=100, primary_key=True)
@@ -11,6 +11,8 @@ class User(models.Model):
     user_id = models.CharField(max_length=100, primary_key=True)
     room = models.ForeignKey(Room, on_delete=models.CASCADE)
 
+class UserDevice(FCMDevice):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
 
 class Location(models.Model):
     id = models.AutoField(primary_key=True)
