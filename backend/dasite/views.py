@@ -27,7 +27,7 @@ def create_room(request):
 
 def check_room(request):
     if "room_id" in request.GET:
-        return JsonResponse({"room_exists": Room.objects.filter(room_id=request.GET["room_id"]).exists()})
+        return JsonResponse({"room_exists": Room.objects.filter(room_id=request.GET["room_id"]).exists(), "room_name" : Room.objects.get(room_id=request.GET["room_id"]).room_name})
     return HttpResponseBadRequest("Please provide a room_id parameter")
 
 
