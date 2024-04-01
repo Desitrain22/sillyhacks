@@ -42,9 +42,9 @@ CHANNEL_LAYERS = {
 }
 
 INSTALLED_APPS = [
-    "daphne",
-    "chat",
-    "fcm_django",
+    #"daphne",
+    #"chat",
+    #"fcm_django",
     "dasite.apps.DasiteConfig",
     "django.contrib.admin",
     "django.contrib.auth",
