@@ -268,7 +268,7 @@ def check_if_at_bell(request):
 
 
 def dong_by_api(request):
-    if ["donger", "dongee", "room_id", "dong_type"] in request.GET:
+    if all(key in request.GET for key in ["donger", "dongee", "room_id", "dong_type"]):
         donger = User.objects.get(
             user_id=request.GET["donger"],
             room=Room.objects.get(room_id=request.GET["room_id"]),
@@ -321,6 +321,7 @@ def dong_by_api(request):
         else:
             print("dong not available")
             return HttpResponseBadRequest("Invalid Dong")
+    return HttpResponseBadRequest("Invalid Parameters")
 
 
 def generate_code():
