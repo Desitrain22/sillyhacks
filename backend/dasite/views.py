@@ -40,7 +40,7 @@ def create_user(request):
                 return HttpResponseBadRequest("Username already exists in this room")
             user = User(user_id = request.GET["user_id"], room = room)
             user.save()
-            return JsonResponse({"user_id": user.user_id, "room_id": user.room_id.room_id})
+            return JsonResponse({"user_id": user.user_id, "room_id": user.room.room_id})
     else:
         return HttpResponseBadRequest("Please provide a room_id and user_id parameter")
 
@@ -54,7 +54,7 @@ def get_users_status_for_room(request):
         entries = [TacoEntryEvent.get_last_user_entry(None, users) for users in room_users]
         result = [
             {
-                "user_id": entry.user_id,
+                "user_id": entry.user.user_id,
                 "can_dong": entry.status, # False if they've already left the Taco Bell
                 "location": entry.location.address,
                 "timestamp": entry.time,
