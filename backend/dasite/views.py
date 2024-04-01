@@ -34,7 +34,7 @@ def check_room(request):
                 "room_exists": exists,
                 "room_name": (
                     None
-                    if not exists #avoid calling Room.objects.get if the room doesn't exist
+                    if not exists  # avoid calling Room.objects.get if the room doesn't exist
                     else Room.objects.get(room_id=request.GET["room_id"]).room_name
                 ),
             }
@@ -74,7 +74,7 @@ def get_users_status_for_room(request):
         result = [
             {
                 "user_id": entry.user.user_id,
-                "can_dong": entry.status, 
+                "can_dong": entry.status,
                 "location": entry.location.address,
                 "timestamp": entry.time,
             }
@@ -125,15 +125,29 @@ def get_leaderboard(request):
     if "room_id" in request.GET:
         room_id = request.GET["room_id"]
         leaderboard = Dong.get_dong_counts_for_room(
-            None, room = Room.objects.get(room_id=room_id)
+            None, room=Room.objects.get(room_id=room_id)
         )
-        leaderboard = {list(entry.keys())[0]: list(entry.values())[0] for entry in leaderboard}
-        users = list(User.objects.filter(room=Room.objects.get(room_id=room_id)).values("user_id"))
+        leaderboard = {
+            list(entry.keys())[0]: list(entry.values())[0] for entry in leaderboard
+        }
+        users = list(
+            User.objects.filter(room=Room.objects.get(room_id=room_id)).values(
+                "user_id"
+            )
+        )
         for user in users:
-            if user['user_id'] not in leaderboard:
-                leaderboard[user['user_id']] = 0
-                
-        leaderboard = [{key: value} for key, value in {user_id: score for user_id, score in sorted(leaderboard.items(), key=lambda item: item[1], reverse=True)}.items()]
+            if user["user_id"] not in leaderboard:
+                leaderboard[user["user_id"]] = 0
+
+        leaderboard = [
+            {key: value}
+            for key, value in {
+                user_id: score
+                for user_id, score in sorted(
+                    leaderboard.items(), key=lambda item: item[1], reverse=True
+                )
+            }.items()
+        ]
         return JsonResponse({"leaderboard": leaderboard})
     else:
         return HttpResponseBadRequest("Please provide a room_id parameter")
@@ -174,10 +188,60 @@ def taco_entry_event(request):
     return HttpResponseBadRequest("Invalid parameters")
 
 
+def check_if_at_bell(request):
+    user = User.objects.get(
+        user_id=request.GET["user_id"],
+        room=Room.objects.get(room_id=request.GET["room_id"]),
+    )
+    lat = float(request.GET["lat"])
+    long = float(request.GET["long"])
+    locations = Location.objects.all()
+    for location in locations:
+        if (
+            abs(location.latitude - lat) < 0.0002
+            and abs(location.longitude - long) < 0.0002
+        ):  # within 75 feet of the center of tacobell
+            if TacoEntryEvent.get_last_user_entry(None, user).status == 0:
+                event = TacoEntryEvent(
+                    user=user,
+                    room=user.room,
+                    location=location,
+                    status=1,
+                )
+                event.save()
+                print("user has entered the bell")
+            else:
+                print("user still at the bell")
+            return JsonResponse(
+                {
+                    "at_bell": True,
+                    "location_id": str(location.id),
+                    "location_address": str(location.address),
+                }
+            )
+        else:
+            if TacoEntryEvent.get_last_user_entry(None, user).status == 1:
+                print("user has left the bell")
+                event = TacoEntryEvent(
+                    user=user,
+                    room=user.room,
+                    location=location,
+                    status=1,
+                )
+                event.save()
+    return JsonResponse({"at_bell": False})
+
+
 def dong_by_api(request):
-    if ["donger","dongee","room_id","dong_type"] in request.GET:
-        donger = User.objects.get(user_id=request.GET["donger"], room=Room.objects.get(room_id=request.GET["room_id"]))
-        dongee = User.objects.get(user_id=request.GET["dongee"], room=Room.objects.get(room_id=request.GET["room_id"]))
+    if ["donger", "dongee", "room_id", "dong_type"] in request.GET:
+        donger = User.objects.get(
+            user_id=request.GET["donger"],
+            room=Room.objects.get(room_id=request.GET["room_id"]),
+        )
+        dongee = User.objects.get(
+            user_id=request.GET["dongee"],
+            room=Room.objects.get(room_id=request.GET["room_id"]),
+        )
         dong_type = 1 if request.GET["dong_type"] == "1" else -1
         location = Location.objects.get(id=request.GET["location_id"])
         if (dong_type == -1) and (
