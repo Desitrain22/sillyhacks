@@ -109,9 +109,9 @@ def get_leaderboard(request):
 
 
 def get_dong_history(request):
-    if "user_id" in request.GET:
+    if "user_id" in request.GET and "room_id" in request.GET:
         user_id = request.GET["user_id"]
-        user = User.objects.get(user_id=user_id)
+        user = User.objects.get(user_id=user_id, room=Room.objects.get(room_id=request.GET["room_id"]))
         return JsonResponse({"dongs": Dong.get_dong_history(None, user)})
     else:
         return HttpResponseBadRequest("Please provide a user_id parameter")
