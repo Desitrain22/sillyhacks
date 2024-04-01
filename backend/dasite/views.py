@@ -34,7 +34,7 @@ def check_room(request):
                 "room_exists": exists,
                 "room_name": (
                     None
-                    if not exists
+                    if not exists #avoid calling Room.objects.get if the room doesn't exist
                     else Room.objects.get(room_id=request.GET["room_id"]).room_name
                 ),
             }
@@ -79,7 +79,7 @@ def get_users_status_for_room(request):
                 "timestamp": entry.time,
             }
             for entry in entries
-            if entry != None
+            if entry
         ]
         return JsonResponse({"dongable": result})
     else:
