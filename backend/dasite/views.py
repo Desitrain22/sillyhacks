@@ -132,7 +132,8 @@ def get_leaderboard(request):
         for user in users:
             if user['user_id'] not in leaderboard:
                 leaderboard[user['user_id']] = 0
-        print(leaderboard)        
+        leaderboard = [{user : leaderboard[user]} for user in leaderboard.keys()]
+        print(leaderboard)
         return JsonResponse({"leaderboard": leaderboard})
     else:
         return HttpResponseBadRequest("Please provide a room_id parameter")
